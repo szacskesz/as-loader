@@ -1,13 +1,15 @@
 import * as webpack from "webpack";
 
-function markModuleAsCompiledToWasm(module: webpack.Module) {
+function markModuleAsCompiledToWasm(compilation: webpack.Compilation, module: webpack.Module) {
   module.buildMeta.asLoaderCompiledToWasm = true;
 }
 
-function isModuleCompiledToWasm(module: webpack.Module): boolean {
+function isModuleCompiledToWasm(compilation: webpack.Compilation, module: webpack.Module): boolean {
+  const issuerModule = compilation.moduleGraph.getIssuer(module);
+
   return Boolean(
     module.buildMeta.asLoaderCompiledToWasm ||
-      (module.issuer && isModuleCompiledToWasm(module.issuer))
+      (issuerModule && isModuleCompiledToWasm(compilation, issuerModule))
   );
 }
 

@@ -9,6 +9,7 @@ import { mapAscOptionsToArgs, Options } from "./options";
 import { AssemblyScriptError } from "./error";
 import * as schema from "./schema.json";
 import { isModuleCompiledToWasm, markModuleAsCompiledToWasm } from "./webpack";
+import type * as webpack from "webpack";
 
 const SUPPORTED_EXTENSIONS = [".wasm", ".js"];
 
@@ -28,6 +29,8 @@ function loader(this: any, content: string, map?: any, meta?: any) {
     baseDataPath: "options",
   });
 
+  const compilation: webpack.Compilation = this._compilation;
+
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const callback = this.async()!;
   let isDone = false;
@@ -43,7 +46,7 @@ function loader(this: any, content: string, map?: any, meta?: any) {
     ...userAscOptions
   } = options as LoaderOptions & CompilerOptions;
 
-  if (isModuleCompiledToWasm(module)) {
+  if (isModuleCompiledToWasm(compilation, module)) {
     // skip asc compilation - forward request to a fallback loader
     return callback(null, content, map, meta);
   }
@@ -181,7 +184,7 @@ function loader(this: any, content: string, map?: any, meta?: any) {
           }
 
           if (outFileName.endsWith(".wasm")) {
-            markModuleAsCompiledToWasm(module);
+            markModuleAsCompiledToWasm(compilation, module);
 
             if (module.type?.startsWith("webassembly") || raw) {
               // uses module type: "webassembly/sync" or "webasssembly/async" or raw: true -
