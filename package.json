@@ -14,7 +14,7 @@
     "loader"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && copyfiles -a -u 2 \"./src/types/*\" \"types\"",
     "lint": "eslint src test",
     "test": "jest",
     "release": "auto shipit",
@@ -22,7 +22,8 @@
   },
   "files": [
     "loader/*",
-    "runtime/*"
+    "runtime/*",
+    "types/*"
   ],
   "peerDependencies": {
     "assemblyscript": "^0.19.0",
@@ -42,6 +43,7 @@
     "@typescript-eslint/parser": "^4.29.0",
     "assemblyscript": "^0.19.0",
     "auto": "^10.30.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-node": "^11.1.0",

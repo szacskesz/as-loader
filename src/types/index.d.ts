@@ -1,0 +1,1 @@
+import "./inline-as-loader";

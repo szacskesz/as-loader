@@ -1,6 +1,7 @@
 node_modules
 /loader
 /runtime
+/types
 .idea
 .env
 .DS_Store
