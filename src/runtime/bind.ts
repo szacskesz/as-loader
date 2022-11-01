@@ -21,7 +21,7 @@ import type {
 import type { AsLoaderRuntime } from "./types/runtime";
 
 function instantiate<
-  TModule,
+  TModule extends Record<any, any>,
   TImports extends Imports | undefined = Imports | undefined
 >(
   module: TModule | string,
@@ -31,7 +31,7 @@ function instantiate<
   supports?: () => boolean
 ): Promise<BoundWasmModuleInstance<TModule, TImports>>;
 function instantiate<
-  TModule,
+  TModule extends Record<any, any>,
   TImports extends Imports | undefined = Imports | undefined
 >(
   module: TModule | string,
@@ -41,7 +41,7 @@ function instantiate<
   supports?: () => boolean
 ): Promise<BoundModuleInstance<TModule, TImports>>;
 function instantiate<
-  TModule,
+  TModule extends Record<any, any>,
   TImports extends Imports | undefined = Imports | undefined
 >(
   module: TModule | string,

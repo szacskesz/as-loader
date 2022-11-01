@@ -23,21 +23,21 @@ import type {
 } from "./types/pointer";
 import type { AsLoaderRuntime } from "./types/runtime";
 
-function instantiate<TModule>(
+function instantiate<TModule extends Record<any, any>>(
   module: TModule | string,
   load: (url: string) => Promise<unknown>,
   imports?: Imports,
   fallback?: false,
   supports?: () => boolean
 ): Promise<WasmModuleInstance<TModule>>;
-function instantiate<TModule>(
+function instantiate<TModule extends Record<any, any>>(
   module: TModule | string,
   load: (url: string) => Promise<unknown>,
   imports: Imports | undefined,
   fallback: true,
   supports?: () => boolean
 ): Promise<ModuleInstance<TModule>>;
-function instantiate<TModule>(
+function instantiate<TModule extends Record<any, any>>(
   module: TModule | string,
   load: (url: string) => Promise<unknown>,
   imports?: Imports,
