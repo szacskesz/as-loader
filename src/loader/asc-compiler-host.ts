@@ -15,6 +15,8 @@ export type AscCompilerHost = Required<
     >
 > & {
     getDiagnostics(): DiagnosticMessage[];
+    getStderrString(): string;
+    getStdoutString(): string;
 };
 
 export async function createAscCompilerHost(context: any): Promise<AscCompilerHost> {
@@ -23,6 +25,9 @@ export async function createAscCompilerHost(context: any): Promise<AscCompilerHo
     const memVolume: Record<string, Buffer> = {};
     const stderr = asc.createMemoryStream();
     const stdout = asc.createMemoryStream();
+    // HACK: make assemblyscrip think it is a real console to format strings
+    (stderr as any).isTTY = true;
+    (stdout as any).isTTY = true;
     const diagnostics: DiagnosticMessage[] = [];
 
     function readFile(fileName: string, baseDir: string) {
@@ -72,12 +77,22 @@ export async function createAscCompilerHost(context: any): Promise<AscCompilerHo
         return diagnostics;
     }
 
+    function getStderrString(): string {
+        return stderr.toString();
+    }
+
+    function getStdoutString(): string {
+        return stdout.toString();
+    }
+
     return {
         readFile,
         writeFile,
         listFiles,
         reportDiagnostic,
         getDiagnostics,
+        getStderrString,
+        getStdoutString,
         stderr,
         stdout,
     };

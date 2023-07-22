@@ -7,6 +7,7 @@ import type { CompilerOptions as AscCompilerOptions } from "assemblyscript/dist/
 import { AscError } from "./asc-error.js";
 import { createAscCompilerHost } from "./asc-compiler-host.js";
 import { mapAscOptionsToArgs } from "./asc-options.js";
+import * as cliColor from "cli-color";
 
 
 const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, content) {
@@ -50,23 +51,31 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, cont
     
         ascCompile().then(async ({ ascCompileResult, ascCompilerHost }) => {
             const ascHandleCompileMessages = async () => {
-                const diagnostics = ascCompilerHost.getDiagnostics();
-                for (const diagnostic of diagnostics) {
-                    const error = await AscError.fromDiagnostic(
-                        diagnostic,
-                        ascCompilerHost,
-                        baseDir,
-                        String(this.rootContext)
+                const stdError = ascCompilerHost.getStderrString();
+                const resetColorToken = "\x1b[0m";
+                const formattedBlocks = stdError
+                    .replace(/\r/g, "")
+                    .split("\n\n")
+                    .map(block => block
+                        .split("\n")
+                        .map(line => `${resetColorToken}${line}${resetColorToken}`)
+                        .join("\n")
                     );
+                const formattedErrors = formattedBlocks.filter(l => cliColor.strip(l).startsWith("ERROR"));
+                const formattedWarnings = formattedBlocks.filter(l => cliColor.strip(l).startsWith("WARNING"));
+
+                for(const error of formattedErrors) {
+                    this.emitError(new Error(error));
+                }
+
+                for(const warning of formattedWarnings) {
+                    this.emitWarning(new Error(warning));
+                }
     
-                    if (diagnostic.category === DiagnosticCategory.Error) {
-                        this.emitError(error);
-                    } else {
-                        this.emitWarning(error);
-                    }
-                };
-    
-                const diagnosticErrorCount = diagnostics.filter((diagnostic) => diagnostic.category === DiagnosticCategory.Error).length;
+                const diagnosticErrorCount = Math.max(
+                    formattedErrors.length,
+                    ascCompilerHost.getDiagnostics().filter((diagnostic) => diagnostic.category === DiagnosticCategory.Error).length
+                );
                 if (diagnosticErrorCount > 0) {
                     throw new AscError(`Compilation failed - found ${diagnosticErrorCount} error(s).`);
                 } else if (ascCompileResult?.error) {
