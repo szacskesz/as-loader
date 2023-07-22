@@ -19,7 +19,7 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, cont
 
         const loaderOptions = this.getOptions();
     
-        const baseDir = path.dirname(this.resourcePath);
+        const baseDir = ".";
         const baseOutputFileName: string = interpolateName(this, "[name].[contenthash]", { context: this.rootContext, content: content });
         const outputFileName: string = baseOutputFileName + ".wasm";
         const outputBindingsFileName: string = baseOutputFileName + ".js";
@@ -29,7 +29,7 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, cont
             const ascCompilerHost = await createAscCompilerHost(this);
             const ascCompileResult = await asc.main(
                 [
-                    path.basename(this.resourcePath),
+                    this.resourcePath,
                     ...mapAscOptionsToArgs({
                         ...loaderOptions,
                         baseDir: baseDir,
@@ -64,12 +64,12 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, cont
                 const formattedErrors = formattedBlocks.filter(l => cliColor.strip(l).startsWith("ERROR"));
                 const formattedWarnings = formattedBlocks.filter(l => cliColor.strip(l).startsWith("WARNING"));
 
-                for(const error of formattedErrors) {
-                    this.emitError(new Error(error));
+                if(formattedErrors.length > 0) {
+                    this.emitError(new Error(formattedErrors.join("\n\n")));
                 }
 
-                for(const warning of formattedWarnings) {
-                    this.emitWarning(new Error(warning));
+                if(formattedWarnings.length > 0) {
+                    this.emitWarning(new Error(formattedWarnings.join("\n\n")));
                 }
     
                 const diagnosticErrorCount = Math.max(
