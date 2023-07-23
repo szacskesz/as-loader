@@ -1,6 +1,6 @@
 {
   "name": "@szacskesz/as-loader",
-  "version": "0.27.6-RC-3",
+  "version": "0.27.6-RC-4",
   "description": "AssemblyScript loader for webpack",
   "repository": "https://github.com/szacskesz/as-loader",
   "author": "Szacsuri Norbert <szacskesz@gmail.com>",
