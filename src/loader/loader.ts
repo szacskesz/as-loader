@@ -10,7 +10,7 @@ import { mapAscOptionsToArgs } from "./asc-options.js";
 import * as cliColor from "cli-color";
 
 
-const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, content) {
+const loader: LoaderDefinitionFunction<AscCompilerOptions & { optimizeFor?: "speed" | "size" | "both" }> = function(this, content) {
     const callback = this.async();
 
     (async () => {
@@ -18,6 +18,7 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, cont
         const { DiagnosticCategory } = await import("assemblyscript/dist/assemblyscript.js")
 
         const loaderOptions = this.getOptions();
+        const optimizeFor: "speed" | "size" | "both" = loaderOptions.optimizeFor ?? "both";
     
         const baseDir = ".";
         const baseOutputFileName: string = interpolateName(this, "[name].[contenthash]", { context: this.rootContext, content: content });
@@ -36,8 +37,8 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions> = function(this, cont
                         outFile: outputFileName,
                         bindings: ["raw"],
                         debug: this.mode !== "production",
-                        optimizeLevel: this.mode === "production" ? 3 : 0,
-                        shrinkLevel: this.mode === "production" ? 2 : 0,
+                        optimizeLevel: this.mode === "production" && optimizeFor !== "size" ? 3 : 0,
+                        shrinkLevel: this.mode === "production" && optimizeFor !== "speed" ? 2 : 0,
                         converge: this.mode === "production",
                         noAssert: this.mode === "production",
                         sourceMap: this.sourceMap === true,
