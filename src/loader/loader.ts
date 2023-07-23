@@ -19,6 +19,7 @@ const loader: LoaderDefinitionFunction<AscCompilerOptions & { optimizeFor?: "spe
 
         const loaderOptions = this.getOptions();
         const optimizeFor: "speed" | "size" | "both" = loaderOptions.optimizeFor ?? "both";
+        delete loaderOptions.optimizeFor;
     
         const baseDir = ".";
         const baseOutputFileName: string = interpolateName(this, "[name].[contenthash]", { context: this.rootContext, content: content });
